@@ -46,19 +46,66 @@ accordionItems.forEach(item => {
     });
 });
 
+// Validation des formulaires
+function validateForm(form) {
+    let isValid = true;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^(?:(?:\+|00)33|0)\s*[1-9](?:[\s.-]*\d{2}){4}$/;
+
+    // Vérifier les champs requis
+    form.querySelectorAll('[required]').forEach(field => {
+        if (!field.value.trim()) {
+            isValid = false;
+            field.classList.add('error');
+            showError(field, 'Ce champ est requis');
+        } else {
+            field.classList.remove('error');
+        }
+
+        // Validation spécifique selon le type
+        if (field.type === 'email' && !emailRegex.test(field.value)) {
+            isValid = false;
+            showError(field, 'Email invalide');
+        }
+        if (field.type === 'tel' && !phoneRegex.test(field.value)) {
+            isValid = false;
+            showError(field, 'Numéro de téléphone invalide');
+        }
+    });
+
+    return isValid;
+}
+
+function showError(field, message) {
+    // Supprimer l'ancien message d'erreur s'il existe
+    const existingError = field.parentElement.querySelector('.error-message');
+    if (existingError) {
+        existingError.remove();
+    }
+
+    // Créer et ajouter le nouveau message d'erreur
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.textContent = message;
+    field.parentElement.appendChild(errorDiv);
+}
+
 // Form submissions
 const forms = document.querySelectorAll('form');
 
 forms.forEach(form => {
     form.addEventListener('submit', (e) => {
         e.preventDefault();
-        alert('Merci pour votre message ! Nous vous recontacterons rapidement.');
-        form.reset();
         
-        // If the form is in a modal, close it
-        const modal = form.closest('.modal');
-        if (modal) {
-            modal.style.display = 'none';
+        if (validateForm(form)) {
+            alert('Merci pour votre message ! Nous vous recontacterons rapidement.');
+            form.reset();
+            
+            // Si le formulaire est dans une modal, la fermer
+            const modal = form.closest('.modal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
         }
     });
 });
@@ -93,12 +140,28 @@ const houses = [
 
 const housesGrid = document.querySelector('.houses-grid');
 
+// Gestion des erreurs de chargement d'images
+function handleImageError(img) {
+    img.onerror = () => {
+        img.src = 'images/tiny-houses/default.jpg';  // Image par défaut
+        console.warn(`Impossible de charger l'image: ${img.src}`);
+    };
+}
+
 // Populate houses grid
 function populateHousesGrid() {
+    if (!housesGrid) return;  // Vérification que housesGrid existe
+    
     housesGrid.innerHTML = '';
     houses.forEach(house => {
         const houseCard = document.createElement('div');
         houseCard.className = 'house-card fade-in';
+        
+        // Créer l'image et ajouter la gestion d'erreur
+        const img = new Image();
+        handleImageError(img);
+        img.src = house.image;
+        
         houseCard.innerHTML = `
             <div class="house-image" style="background-image: url('${house.image}')"></div>
             <div class="house-info">
@@ -162,7 +225,6 @@ function initHeroSlider() {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM chargé, initialisation du carrousel...');
     initHeroSlider();
-    rotateHeroBackground();
     if (housesGrid) {
         populateHousesGrid();
     }
@@ -174,18 +236,19 @@ const observerOptions = {
     rootMargin: '0px 0px -50px 0px'
 };
 
-const observer = new IntersectionObserver((entries) => {
+// Renommer en scrollObserver pour éviter le conflit
+const scrollObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
             entry.target.classList.add('fade-in');
-            observer.unobserve(entry.target);
+            scrollObserver.unobserve(entry.target);
         }
     });
 }, observerOptions);
 
 // Observe all sections
 document.querySelectorAll('section').forEach(section => {
-    observer.observe(section);
+    scrollObserver.observe(section);
 });
 
 // Navigation et Header
@@ -535,7 +598,6 @@ function initParallax() {
 document.addEventListener('DOMContentLoaded', function() {
     initScrollAnimations();
     initParallax();
-    initHeroSlider();
     rotateHeroBackground();
     if (housesGrid) {
         populateHousesGrid();

@@ -1,26 +1,181 @@
+/* Variables globales */
+:root {
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 1rem;
+    --spacing-md: 2rem;
+    --spacing-lg: 3rem;
+    --spacing-xl: 4rem;
+    
+    --font-size-xs: 0.875rem;
+    --font-size-sm: 1rem;
+    --font-size-md: 1.25rem;
+    --font-size-lg: 1.5rem;
+    --font-size-xl: 2rem;
+    
+    --primary-color: #4CAF50;
+    --secondary-color: #45B7D1;
+    --text-color: #333;
+    --text-light: #666;
+    --background-light: #f9f9f9;
+    --white: #ffffff;
+}
+
+/* Reset et styles de base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    background-color: var(--background-light);
+}
+
+/* Typographie */
+h1, h2, h3, h4, h5, h6 {
+    line-height: 1.2;
+    margin-bottom: var(--spacing-md);
+}
+
+h1 { font-size: var(--font-size-xl); }
+h2 { font-size: var(--font-size-lg); }
+h3 { font-size: var(--font-size-md); }
+
+p { margin-bottom: var(--spacing-sm); }
+
+/* Sections */
+section {
+    padding: var(--spacing-xl) 0;
+    margin-bottom: var(--spacing-xl);
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.section-title {
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-sm);
+}
+
+/* Conteneurs */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-md);
+}
+
+/* Cartes et boîtes */
+.card {
+    background: var(--white);
+    border-radius: 10px;
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* Grilles */
+.grid {
+    display: grid;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+/* Bouton retour en haut */
+.back-to-top {
+    position: fixed;
+    bottom: var(--spacing-md);
+    right: var(--spacing-md);
+    background: var(--primary-color);
+    color: var(--white);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1000;
+}
+
+.back-to-top.visible {
+    opacity: 1;
+}
+
+/* Optimisations mobiles */
+@media (max-width: 768px) {
+    :root {
+        --spacing-xl: 3rem;
+        --spacing-lg: 2rem;
+        --font-size-xl: 1.75rem;
+        --font-size-lg: 1.25rem;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+    }
+
+    .card {
+        padding: var(--spacing-sm);
+    }
+}
+
+/* Améliorations de contraste */
+.hero-content {
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.hero-title {
+    background: rgba(0,0,0,0.6);
+    padding: var(--spacing-sm);
+    border-radius: 5px;
+}
+
+/* Transitions douces */
+.section {
+    transition: opacity 0.3s ease;
+}
+
+.fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
 /* Variables CSS globales */
 :root {
     --color-primary: #2C5530;
-    --color-primary-light: #3a7040;
     --color-secondary: #8B7355;
     --color-accent: #D4B483;
     --color-background: #F5F5F5;
     --color-text: #333333;
-    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
-    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
-    --gradient-primary: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --blur-effect: blur(10px);
+    --shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
 }
 
 /* Effets de glassmorphisme */
 .glass-effect {
     background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: var(--blur-effect);
-    -webkit-backdrop-filter: var(--blur-effect);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow);
 }
 
 /* Animation de hover sur les cartes */

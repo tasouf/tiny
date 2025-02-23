@@ -133,47 +133,356 @@
             font-size: 0.9em;
         }
 
-        .details-section {
+        .result-card {
             background: #fff;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-top: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
         }
 
-        .details-section h3 {
-            color: #2c3e50;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #4CAF50;
+        .result-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
         }
 
-        .formule-details {
-            list-style: none;
-            padding: 0;
-            margin: 0;
+        .tooltip-trigger {
+            cursor: help;
+            color: #45B7D1;
+            margin-left: 5px;
+            font-size: 0.9em;
         }
 
-        .formule-details li {
+        [data-tooltip] {
+            position: relative;
+        }
+
+        [data-tooltip]:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(44, 85, 48, 0.95);
+            color: white;
             padding: 10px 15px;
-            margin-bottom: 8px;
-            background: #f8f9fa;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 400;
+            line-height: 1.4;
+            white-space: normal;
+            max-width: 250px;
+            text-align: center;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        [data-tooltip]:hover::before {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 8px solid transparent;
+            border-top-color: rgba(44, 85, 48, 0.95);
+            margin-bottom: -8px;
+        }
+
+        @media (max-width: 768px) {
+            [data-tooltip]:hover::after {
+                font-size: 0.85rem;
+                padding: 8px 12px;
+                max-width: 200px;
+            }
+        }
+
+        .hero-title {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 1.5rem;
+            padding: 1rem 2rem;
+            background-color: rgba(255, 255, 255, 0.85);
             border-radius: 8px;
-            color: #2c3e50;
+            display: inline-block;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: white;
+            margin-bottom: 2rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 4px;
+            display: inline-block;
             transition: all 0.3s ease;
         }
 
-        .formule-details li:hover {
-            background: #f0f2f5;
-            transform: translateX(5px);
+        .logo:hover {
+            background-color: rgba(255, 255, 255, 1);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
-        .formule-details li.sub-item {
-            margin-left: 20px;
-            font-size: 0.95em;
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 1.2rem;
+                padding: 0.4rem 0.8rem;
+            }
+        }
+
+        .simulator-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .simulator-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .step-indicator {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            padding: 20px;
+        }
+
+        .step-indicator::before {
+            content: '';
+            position: absolute;
+            top: 30px;
+            left: calc(50% - 20px);
+            width: 40px;
+            height: 40px;
+            background: #4CAF50;
+            border-radius: 50%;
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+
+        .step-indicator::after {
+            content: '';
+            position: absolute;
+            top: 49px;
+            left: 50%;
+            width: 100%;
+            height: 2px;
+            background: #e0e0e0;
+            z-index: 0;
+        }
+
+        .step-indicator:last-child::after {
+            display: none;
+        }
+
+        .step-indicator.active::before {
+            transform: scale(1.2);
+            box-shadow: 0 0 0 5px rgba(76, 175, 80, 0.2);
+        }
+
+        .step-number {
+            color: white;
+            position: relative;
+            z-index: 2;
+            font-weight: bold;
+        }
+
+        .step-title {
+            margin-top: 35px;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .step-content {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .step-content.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .formula-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .formula-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .formula-card.selected {
+            border-color: #4CAF50;
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.2);
+        }
+
+        .formula-card h4 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .nav-button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-button:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .nav-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .result-highlight {
+            font-size: 2.5rem;
+            color: #4CAF50;
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .amount {
+            font-size: 2.5rem;
+            color: #4CAF50;
+            font-weight: 600;
+            margin: 10px 0;
+            display: inline-block;
+        }
+
+        .amount::after {
+            content: '€';
+            font-size: 0.8em;
+            font-weight: normal;
+            margin-left: 2px;
+            color: inherit;
+        }
+
+        .result-period {
             color: #666;
-            background: transparent;
-            border-left: 2px solid #4CAF50;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .result-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .result-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .tooltip-trigger {
+            cursor: help;
+            color: #45B7D1;
+            margin-left: 5px;
+            font-size: 0.9em;
+        }
+
+        [data-tooltip] {
+            position: relative;
+        }
+
+        [data-tooltip]:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(44, 85, 48, 0.95);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 400;
+            line-height: 1.4;
+            white-space: normal;
+            max-width: 250px;
+            text-align: center;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        [data-tooltip]:hover::before {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 8px solid transparent;
+            border-top-color: rgba(44, 85, 48, 0.95);
+            margin-bottom: -8px;
+        }
+
+        @media (max-width: 768px) {
+            [data-tooltip]:hover::after {
+                font-size: 0.85rem;
+                padding: 8px 12px;
+                max-width: 200px;
+            }
         }
 
         @keyframes pulse {
@@ -332,10 +641,166 @@
         }
 
         .result-highlight {
-            font-size: 2.5em;
+            font-size: 2.5rem;
             color: #4CAF50;
-            font-weight: bold;
-            margin: 20px 0;
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .amount {
+            font-size: 2.5rem;
+            color: #4CAF50;
+            font-weight: 600;
+            margin: 10px 0;
+            display: inline-block;
+        }
+
+        .amount::after {
+            content: '€';
+            font-size: 0.8em;
+            font-weight: normal;
+            margin-left: 2px;
+            color: inherit;
+        }
+
+        .result-period {
+            color: #666;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .result-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .result-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .tooltip-trigger {
+            cursor: help;
+            color: #45B7D1;
+            margin-left: 5px;
+            font-size: 0.9em;
+        }
+
+        [data-tooltip] {
+            position: relative;
+        }
+
+        [data-tooltip]:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(44, 85, 48, 0.95);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 400;
+            line-height: 1.4;
+            white-space: normal;
+            max-width: 250px;
+            text-align: center;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        [data-tooltip]:hover::before {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 8px solid transparent;
+            border-top-color: rgba(44, 85, 48, 0.95);
+            margin-bottom: -8px;
+        }
+
+        @media (max-width: 768px) {
+            [data-tooltip]:hover::after {
+                font-size: 0.85rem;
+                padding: 8px 12px;
+                max-width: 200px;
+            }
+        }
+
+        /* Navigation et logo */
+        #main-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2C5530;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+        }
+
+        .logo:hover {
+            transform: translateY(-1px);
+            color: #45B7D1;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+        }
+
+        .nav-links a:hover {
+            color: #45B7D1;
+            background: rgba(69, 183, 209, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            #main-nav {
+                padding: 0.8rem 1rem;
+            }
+
+            .logo {
+                font-size: 1.4rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .nav-links a {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.9rem;
+            }
         }
     </style>
 </head>
@@ -350,9 +815,7 @@
         </div>
         <div class="hero-overlay grain-effect"></div>
         <nav id="main-nav" class="glass-effect">
-            <div class="logo">
-                <span class="gradient-text">Tiny Corrèze</span>
-            </div>
+            <a href="#" class="logo">Tiny Corrèze</a>
             <div class="nav-links">
                 <a href="#concept" class="nav-link" data-section="concept">Concept</a>
                 <a href="#partner" class="nav-link" data-section="partner">Devenir Partenaire</a>
@@ -367,7 +830,7 @@
             </button>
         </nav>
         <div class="hero-content fade-in">
-            <h1 class="gradient-text">Découvrez une nouvelle façon de voyager et d'investir avec nos tiny houses écologiques</h1>
+            <h1 class="gradient-text hero-title">Découvrez une nouvelle façon de voyager et d'investir avec nos tiny houses écologiques</h1>
             <p class="hero-subtitle">Immergez-vous dans les paysages exceptionnels de la Corrèze</p>
             <div class="hero-cta">
                 <a href="#concept" class="cta-button primary gradient-button">Découvrir</a>
@@ -470,12 +933,12 @@
                             <li>Flexibilité maximale</li>
                         </ul>
                     </div>
-                    <div class="formula-card" onclick="selectFormula('achat')">
+                    <div class="formula-card" onclick="selectFormula('achat-tiny')">
                         <h4>Achat de Tiny House</h4>
                         <p>Devenez propriétaire de votre Tiny House</p>
                         <ul>
                             <li>100% des revenus locatifs</li>
-                            <li>Service maintenance inclus</li>
+                            <li>Option services et maintenance</li>
                         </ul>
                     </div>
                 </div>
@@ -509,9 +972,13 @@
                 <div class="simulation-section">
                     <h3>Paramètres de Location</h3>
                     <p class="info-text">Note : Conformément à la loi française, la location courte durée est limitée à 3 mois par an par terrain.</p>
-                    <div class="simulation-controls">
+                    <div class="simulator-controls">
                         <div class="input-group">
-                            <label for="prix-nuit">Prix par nuit (€)</label>
+                            <label for="prix-nuit">
+                                Prix par nuit (€)
+                                <i class="fas fa-info-circle tooltip-trigger" 
+                                   data-tooltip="Prix de location par nuit. Minimum recommandé : 50€"></i>
+                            </label>
                             <div class="input-with-button">
                                 <input type="number" id="prix-nuit" min="0" value="150">
                                 <button onclick="validateInput('prix-nuit')" class="validate-btn">OK</button>
@@ -519,7 +986,11 @@
                         </div>
 
                         <div class="input-group">
-                            <label for="taux-occupation">Taux d'occupation (%)</label>
+                            <label for="taux-occupation">
+                                Taux d'occupation (%)
+                                <i class="fas fa-info-circle tooltip-trigger" 
+                                   data-tooltip="Pourcentage d'occupation sur 3 mois. Basé sur les statistiques de location en Corrèze"></i>
+                            </label>
                             <div class="input-with-button">
                                 <input type="number" id="taux-occupation" min="0" max="100" value="50">
                                 <button onclick="validateInput('taux-occupation')" class="validate-btn">OK</button>
@@ -527,11 +998,25 @@
                         </div>
 
                         <div class="input-group">
-                            <label for="nb-terrains">Nombre de terrains</label>
+                            <label for="nb-terrains">
+                                Nombre de terrains
+                                <i class="fas fa-info-circle tooltip-trigger" 
+                                   data-tooltip="Nombre de terrains disponibles pour l'installation de Tiny Houses"></i>
+                            </label>
                             <div class="input-with-button">
                                 <input type="number" id="nb-terrains" min="1" value="1">
                                 <button onclick="validateInput('nb-terrains')" class="validate-btn">OK</button>
                             </div>
+                        </div>
+
+                        <div class="input-group" id="maintenance-option" style="display: none;">
+                            <label>
+                                <input type="checkbox" id="option-maintenance" onchange="updateResultatsSimulation()">
+                                Services et maintenance
+                                <i class="fas fa-info-circle tooltip-trigger" 
+                                   data-tooltip="Inclut : entretien régulier, réparations, assistance 24/7, et gestion des urgences"></i>
+                            </label>
+                            <p class="info-text">150€/mois - Maintenance complète et assistance</p>
                         </div>
                     </div>
                 </div>
@@ -541,30 +1026,29 @@
             <div class="step-content" id="step4">
                 <div class="results-section">
                     <div class="result-card">
-                        <h3>Revenus Estimés</h3>
+                        <h3>Revenus Bruts</h3>
                         <div class="result-highlight">
-                            <span id="revenus-estimes-value">0</span>€
+                            <span id="revenu-brut" class="amount">0.00</span>
                         </div>
                         <div class="result-period">par an</div>
                     </div>
 
                     <div class="result-card">
-                        <h3>Part Partenaire</h3>
+                        <h3>Part Propriétaire</h3>
                         <div class="result-highlight">
-                            <span id="part-partenaire-value">0</span>€
+                            <span id="part-proprietaire" class="amount">0.00</span>
                         </div>
                         <div class="result-period">par an</div>
                     </div>
 
                     <div class="result-card">
-                        <h3>Notre Part</h3>
+                        <h3>Part Gestionnaire</h3>
                         <div class="result-highlight">
-                            <span id="notre-part-value">0</span>€
+                            <span id="part-gestionnaire" class="amount">0.00</span>
                         </div>
                         <div class="result-period">par an</div>
                     </div>
                 </div>
-
                 <div class="details-section">
                     <h3>Détails de la Formule</h3>
                     <div id="details-formule-content"></div>
@@ -1079,5 +1563,58 @@
             });
         });
     </script>
+
+    <style>
+        .tooltip-trigger {
+            cursor: help;
+            color: #45B7D1;
+            margin-left: 5px;
+            font-size: 0.9em;
+        }
+
+        [data-tooltip] {
+            position: relative;
+        }
+
+        [data-tooltip]:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(44, 85, 48, 0.95);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 400;
+            line-height: 1.4;
+            white-space: normal;
+            max-width: 250px;
+            text-align: center;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        [data-tooltip]:hover::before {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 8px solid transparent;
+            border-top-color: rgba(44, 85, 48, 0.95);
+            margin-bottom: -8px;
+        }
+
+        @media (max-width: 768px) {
+            [data-tooltip]:hover::after {
+                font-size: 0.85rem;
+                padding: 8px 12px;
+                max-width: 200px;
+            }
+        }
+    </style>
 </body>
 </html>
