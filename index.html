@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiny Houses Corrèze - Votre Évasion Nature</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="partner-dashboard.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .info-text {
+            color: #666;
+            font-style: italic;
+            font-size: 0.9em;
+            margin: 5px 0 15px 0;
+            padding-left: 5px;
+            border-left: 3px solid #4CAF50;
+        }
+        
+        .simulation-section {
+            background: #fff;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .info-text {
+            color: #666;
+            font-style: italic;
+            font-size: 0.9em;
+            margin: 5px 0 20px 0;
+            padding: 10px 15px;
+            border-left: 4px solid #4CAF50;
+            background: #f8f9fa;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .simulator-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .input-with-button {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-with-button input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .input-with-button input:focus {
+            border-color: #4CAF50;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+
+        .validate-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .validate-btn:hover {
+            background: #45a049;
+            transform: translateY(-1px);
+        }
+
+        .validate-btn.validated {
+            background: #45a049;
+            animation: pulse 0.5s;
+        }
+
+        .results-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .result-item {
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .result-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .result-item h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .result-value {
+            font-size: 2em;
+            color: #4CAF50;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .result-period {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .details-section {
+            background: #fff;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-top: 30px;
+        }
+
+        .details-section h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #4CAF50;
+        }
+
+        .formule-details {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .formule-details li {
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            color: #2c3e50;
+            transition: all 0.3s ease;
+        }
+
+        .formule-details li:hover {
+            background: #f0f2f5;
+            transform: translateX(5px);
+        }
+
+        .formule-details li.sub-item {
+            margin-left: 20px;
+            font-size: 0.95em;
+            color: #666;
+            background: transparent;
+            border-left: 2px solid #4CAF50;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .simulator-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .simulator-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .step-indicator {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            padding: 20px;
+        }
+
+        .step-indicator::before {
+            content: '';
+            position: absolute;
+            top: 30px;
+            left: calc(50% - 20px);
+            width: 40px;
+            height: 40px;
+            background: #4CAF50;
+            border-radius: 50%;
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+
+        .step-indicator::after {
+            content: '';
+            position: absolute;
+            top: 49px;
+            left: 50%;
+            width: 100%;
+            height: 2px;
+            background: #e0e0e0;
+            z-index: 0;
+        }
+
+        .step-indicator:last-child::after {
+            display: none;
+        }
+
+        .step-indicator.active::before {
+            transform: scale(1.2);
+            box-shadow: 0 0 0 5px rgba(76, 175, 80, 0.2);
+        }
+
+        .step-number {
+            color: white;
+            position: relative;
+            z-index: 2;
+            font-weight: bold;
+        }
+
+        .step-title {
+            margin-top: 35px;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .step-content {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .step-content.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .formula-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .formula-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .formula-card.selected {
+            border-color: #4CAF50;
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.2);
+        }
+
+        .formula-card h4 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .nav-button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-button:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .nav-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .result-highlight {
+            font-size: 2.5em;
+            color: #4CAF50;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <header class="hero">
+        <div class="hero-slider">
+            <div class="slide active" style="background: url('images/landscapes/turenne_cpenngraphics.jpg') center/cover no-repeat"></div>
+            <div class="slide" style="background: url('images/landscapes/beaulieu-sur-dordogne_csebastien_brunie.jpg') center/cover no-repeat"></div>
+            <div class="slide" style="background: url('images/landscapes/parc-naturel-grandes-causses.jpg') center/cover no-repeat"></div>
+            <div class="slide" style="background: url('images/landscapes/paysages-correze-1.webp') center/cover no-repeat"></div>
+            <div class="slide" style="background: url('images/landscapes/paysages-correze.webp') center/cover no-repeat"></div>
+        </div>
+        <div class="hero-overlay grain-effect"></div>
+        <nav id="main-nav" class="glass-effect">
+            <div class="logo">
+                <span class="gradient-text">Tiny Corrèze</span>
+            </div>
+            <div class="nav-links">
+                <a href="#concept" class="nav-link" data-section="concept">Concept</a>
+                <a href="#partner" class="nav-link" data-section="partner">Devenir Partenaire</a>
+                <a href="#buy" class="nav-link" data-section="buy">Acheter</a>
+                <a href="#contact" class="nav-link" data-section="contact">Contact</a>
+                <div class="nav-indicator"></div>
+            </div>
+            <button class="mobile-menu-btn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </nav>
+        <div class="hero-content fade-in">
+            <h1 class="gradient-text">Découvrez une nouvelle façon de voyager et d'investir avec nos tiny houses écologiques</h1>
+            <p class="hero-subtitle">Immergez-vous dans les paysages exceptionnels de la Corrèze</p>
+            <div class="hero-cta">
+                <a href="#concept" class="cta-button primary gradient-button">Découvrir</a>
+                <a href="#simulation" class="cta-button secondary gradient-button">Simuler mes revenus</a>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <div class="mouse">
+                <div class="wheel"></div>
+            </div>
+            <div class="arrows">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </header>
+
+    <section id="concept" class="fade-in">
+        <h2 class="gradient-text">Notre Concept</h2>
+        <div class="concept-grid">
+            <div class="concept-card glass-effect">
+                <img src="images/icons/eco.svg" alt="Écologique" class="concept-icon">
+                <h3 class="animated-underline">Écologique</h3>
+                <p>Des tiny houses respectueuses de l'environnement</p>
+            </div>
+            <div class="concept-card glass-effect">
+                <img src="images/icons/location.svg" alt="Location Saisonnière" class="concept-icon">
+                <h3 class="animated-underline">Location Saisonnière</h3>
+                <p>Profitez d'un séjour unique dans nos tiny houses, immergées dans les plus beaux paysages de Corrèze.</p>
+            </div>
+            <div class="concept-card glass-effect">
+                <img src="images/icons/partnership.svg" alt="Partenariat Terrain" class="concept-icon">
+                <h3 class="animated-underline">Partenariat Terrain</h3>
+                <p>Valorisez votre terrain et générez des revenus réguliers.</p>
+            </div>
+        </div>
+
+        <div class="values-section fade-in">
+            <h2 class="gradient-text">Nos Valeurs</h2>
+            <div class="values-grid">
+                <div class="value-card glass-effect">
+                    <img src="images/icons/leaf.svg" alt="Écologie" class="value-icon">
+                    <h3>Écologie</h3>
+                    <p>Matériaux durables et empreinte minimale</p>
+                </div>
+                <div class="value-card glass-effect">
+                    <img src="images/icons/community.svg" alt="Communauté" class="value-icon">
+                    <h3>Communauté</h3>
+                    <p>Développement local et partenariats de confiance</p>
+                </div>
+                <div class="value-card glass-effect">
+                    <img src="images/icons/heart.svg" alt="Authenticité" class="value-icon">
+                    <h3>Authenticité</h3>
+                    <p>Expériences uniques et personnalisées</p>
+                </div>
+                <div class="value-card glass-effect">
+                    <img src="images/icons/star.svg" alt="Excellence" class="value-icon">
+                    <h3>Excellence</h3>
+                    <p>Qualité et innovation dans chaque détail</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="simulation" class="fade-in grain-effect">
+        <h2 class="gradient-text">Simulateur de Revenus</h2>
+        <div class="simulator-container glass-effect">
+            <div class="simulator-header">
+                <h3>Estimez vos revenus potentiels</h3>
+            </div>
+            <div class="simulator-steps">
+                <div class="step-indicator active">
+                    <div class="step-number">1</div>
+                    <div class="step-title">Type de Formule</div>
+                </div>
+                <div class="step-indicator">
+                    <div class="step-number">2</div>
+                    <div class="step-title">Mode de Gestion</div>
+                </div>
+                <div class="step-indicator">
+                    <div class="step-number">3</div>
+                    <div class="step-title">Paramètres</div>
+                </div>
+                <div class="step-indicator">
+                    <div class="step-number">4</div>
+                    <div class="step-title">Résultats</div>
+                </div>
+            </div>
+
+            <!-- Étape 1 : Choix de la formule -->
+            <div class="step-content active" id="step1">
+                <h3>Choisissez votre formule</h3>
+                <div class="card-grid">
+                    <div class="formula-card" onclick="selectFormula('location-courte')">
+                        <h4>Location Courte Durée</h4>
+                        <p>Louez votre terrain jusqu'à 3 mois par an</p>
+                        <ul>
+                            <li>Revenus saisonniers</li>
+                            <li>Flexibilité maximale</li>
+                        </ul>
+                    </div>
+                    <div class="formula-card" onclick="selectFormula('achat')">
+                        <h4>Achat de Tiny House</h4>
+                        <p>Devenez propriétaire de votre Tiny House</p>
+                        <ul>
+                            <li>100% des revenus locatifs</li>
+                            <li>Service maintenance inclus</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Étape 2 : Mode de gestion -->
+            <div class="step-content" id="step2">
+                <h3>Choisissez votre mode de gestion</h3>
+                <div class="card-grid">
+                    <div class="formula-card" onclick="selectManagement('clefs-en-main')">
+                        <h4>Clefs en Main</h4>
+                        <p>Nous gérons tout pour vous</p>
+                        <ul>
+                            <li>Gestion complète</li>
+                            <li>80% pour nous, 20% pour vous</li>
+                        </ul>
+                    </div>
+                    <div class="formula-card" onclick="selectManagement('autonome')">
+                        <h4>Gestion Autonome</h4>
+                        <p>Vous gérez vous-même</p>
+                        <ul>
+                            <li>Plus de liberté</li>
+                            <li>60% pour nous, 40% pour vous</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Étape 3 : Paramètres -->
+            <div class="step-content" id="step3">
+                <div class="simulation-section">
+                    <h3>Paramètres de Location</h3>
+                    <p class="info-text">Note : Conformément à la loi française, la location courte durée est limitée à 3 mois par an par terrain.</p>
+                    <div class="simulation-controls">
+                        <div class="input-group">
+                            <label for="prix-nuit">Prix par nuit (€)</label>
+                            <div class="input-with-button">
+                                <input type="number" id="prix-nuit" min="0" value="150">
+                                <button onclick="validateInput('prix-nuit')" class="validate-btn">OK</button>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="taux-occupation">Taux d'occupation (%)</label>
+                            <div class="input-with-button">
+                                <input type="number" id="taux-occupation" min="0" max="100" value="50">
+                                <button onclick="validateInput('taux-occupation')" class="validate-btn">OK</button>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="nb-terrains">Nombre de terrains</label>
+                            <div class="input-with-button">
+                                <input type="number" id="nb-terrains" min="1" value="1">
+                                <button onclick="validateInput('nb-terrains')" class="validate-btn">OK</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Étape 4 : Résultats -->
+            <div class="step-content" id="step4">
+                <div class="results-section">
+                    <div class="result-card">
+                        <h3>Revenus Estimés</h3>
+                        <div class="result-highlight">
+                            <span id="revenus-estimes-value">0</span>€
+                        </div>
+                        <div class="result-period">par an</div>
+                    </div>
+
+                    <div class="result-card">
+                        <h3>Part Partenaire</h3>
+                        <div class="result-highlight">
+                            <span id="part-partenaire-value">0</span>€
+                        </div>
+                        <div class="result-period">par an</div>
+                    </div>
+
+                    <div class="result-card">
+                        <h3>Notre Part</h3>
+                        <div class="result-highlight">
+                            <span id="notre-part-value">0</span>€
+                        </div>
+                        <div class="result-period">par an</div>
+                    </div>
+                </div>
+
+                <div class="details-section">
+                    <h3>Détails de la Formule</h3>
+                    <div id="details-formule-content"></div>
+                </div>
+            </div>
+
+            <div class="navigation-buttons">
+                <button class="nav-button" id="prevBtn" onclick="prevStep()">
+                    <i class="fas fa-arrow-left"></i> Précédent
+                </button>
+                <button class="nav-button" id="nextBtn" onclick="nextStep()">
+                    Suivant <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section id="partner" class="partner">
+        <h2>Devenir Partenaire</h2>
+        
+        <!-- Compteur de partenaires -->
+        <div class="partner-stats">
+            <div class="stat-item">
+                <span class="counter" data-target="50">50</span>
+                <span class="stat-label">Partenaires satisfaits</span>
+            </div>
+            <div class="stat-item">
+                <span class="counter" data-target="95">95</span>
+                <span class="stat-label">% de taux de satisfaction</span>
+            </div>
+            <div class="stat-item">
+                <span class="counter" data-target="120">120</span>
+                <span class="stat-label">Tiny Houses installées</span>
+            </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="timeline">
+            <div class="timeline-item" data-step="1">
+                <div class="timeline-icon">
+                    <i class="fas fa-handshake"></i>
+                </div>
+                <div class="timeline-content">
+                    <h3>Premier Contact</h3>
+                    <p>Échangeons sur votre projet et vos objectifs</p>
+                </div>
+            </div>
+            <div class="timeline-item" data-step="2">
+                <div class="timeline-icon">
+                    <i class="fas fa-map-marked-alt"></i>
+                </div>
+                <div class="timeline-content">
+                    <h3>Étude de Site</h3>
+                    <p>Analyse du terrain et des opportunités</p>
+                </div>
+            </div>
+            <div class="timeline-item" data-step="3">
+                <div class="timeline-icon">
+                    <i class="fas fa-calculator"></i>
+                </div>
+                <div class="timeline-content">
+                    <h3>Plan d'Investissement</h3>
+                    <p>Simulation financière personnalisée</p>
+                </div>
+            </div>
+            <div class="timeline-item" data-step="4">
+                <div class="timeline-icon">
+                    <i class="fas fa-file-signature"></i>
+                </div>
+                <div class="timeline-content">
+                    <h3>Signature</h3>
+                    <p>Finalisation du partenariat</p>
+                </div>
+            </div>
+            <div class="timeline-item" data-step="5">
+                <div class="timeline-icon">
+                    <i class="fas fa-home"></i>
+                </div>
+                <div class="timeline-content">
+                    <h3>Installation</h3>
+                    <p>Livraison et mise en service</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Carte des emplacements -->
+        <div class="locations-map">
+            <h3>Nos Emplacements</h3>
+            <div id="partner-map"></div>
+            <div class="map-legend">
+                <div class="legend-item">
+                    <span class="legend-dot available"></span>
+                    <span>Emplacements disponibles</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot occupied"></span>
+                    <span>Tiny Houses installées</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="tiny-houses" class="section">
+        <div class="section-header">
+            <h2>Nos Tiny Houses</h2>
+            <p class="section-subtitle">Découvrez nos modèles uniques, alliant confort et respect de l'environnement</p>
+        </div>
+
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">Tous</button>
+            <button class="filter-btn" data-filter="disponible">Disponibles</button>
+            <button class="filter-btn" data-filter="eco">100% Écologique</button>
+            <button class="filter-btn" data-filter="luxe">Premium</button>
+        </div>
+
+        <div class="tiny-houses-carousel">
+            <div class="carousel-container">
+                <div class="carousel-track">
+                    <div class="tiny-house-card" data-categories="disponible eco">
+                        <div class="card-image">
+                            <img src="images/tiny-houses/TI1.jpg" alt="Tiny House Nature avec terrasse en bois">
+                            <div class="availability available">Disponible</div>
+                        </div>
+                        <div class="card-content">
+                            <h3>Tiny House Nature</h3>
+                            <div class="features">
+                                <span><i class="fas fa-ruler-combined"></i> 20m²</span>
+                                <span><i class="fas fa-users"></i> 2-4 pers</span>
+                                <span><i class="fas fa-leaf"></i> 100% eco</span>
+                            </div>
+                            <p>Vue imprenable sur la vallée</p>
+                            <p class="price">90€ / nuit</p>
+                            <div class="card-actions">
+                                <button class="btn-details">Détails</button>
+                                <button class="btn-reserve">Réserver</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tiny-house-card" data-categories="disponible">
+                        <div class="card-image">
+                            <img src="images/tiny-houses/20240717-IMG_7182-scaled.webp" alt="Tiny House Forest dans les bois">
+                            <div class="availability available">Disponible</div>
+                        </div>
+                        <div class="card-content">
+                            <h3>Tiny House Forest</h3>
+                            <div class="features">
+                                <span><i class="fas fa-ruler-combined"></i> 25m²</span>
+                                <span><i class="fas fa-users"></i> 2-4 pers</span>
+                                <span><i class="fas fa-tree"></i> En forêt</span>
+                            </div>
+                            <p>Au cœur de la forêt corrézienne</p>
+                            <p class="price">85€ / nuit</p>
+                            <div class="card-actions">
+                                <button class="btn-details">Détails</button>
+                                <button class="btn-reserve">Réserver</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tiny-house-card" data-categories="disponible">
+                        <div class="card-image">
+                            <img src="images/tiny-houses/365546978.jpg" alt="Tiny House Lake près du lac">
+                            <div class="availability available">Disponible</div>
+                        </div>
+                        <div class="card-content">
+                            <h3>Tiny House Lake</h3>
+                            <div class="features">
+                                <span><i class="fas fa-ruler-combined"></i> 22m²</span>
+                                <span><i class="fas fa-users"></i> 2-4 pers</span>
+                                <span><i class="fas fa-water"></i> Vue lac</span>
+                            </div>
+                            <p>En bordure du lac de Vassivière</p>
+                            <p class="price">95€ / nuit</p>
+                            <div class="card-actions">
+                                <button class="btn-details">Détails</button>
+                                <button class="btn-reserve">Réserver</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tiny-house-card" data-categories="disponible">
+                        <div class="card-image">
+                            <img src="images/tiny-houses/TI4.jpg" alt="Tiny House Mountain intérieur">
+                            <div class="availability available">Disponible</div>
+                        </div>
+                        <div class="card-content">
+                            <h3>Tiny House Mountain</h3>
+                            <div class="features">
+                                <span><i class="fas fa-ruler-combined"></i> 28m²</span>
+                                <span><i class="fas fa-users"></i> 2-4 pers</span>
+                                <span><i class="fas fa-mountain"></i> Vue monts</span>
+                            </div>
+                            <p>Panorama sur les monts de Corrèze</p>
+                            <p class="price">90€ / nuit</p>
+                            <div class="card-actions">
+                                <button class="btn-details">Détails</button>
+                                <button class="btn-reserve">Réserver</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="carousel-btn prev"><i class="fas fa-chevron-left"></i></button>
+                <button class="carousel-btn next"><i class="fas fa-chevron-right"></i></button>
+            </div>
+
+            <div class="carousel-indicators">
+                <button class="indicator active"></button>
+                <button class="indicator"></button>
+                <button class="indicator"></button>
+                <button class="indicator"></button>
+            </div>
+        </div>
+
+        <div class="tiny-house-modal">
+            <div class="modal-content">
+                <button class="modal-close"><i class="fas fa-times"></i></button>
+                <div class="modal-gallery">
+                    <!-- Les images seront injectées ici par JavaScript -->
+                </div>
+                <div class="modal-info">
+                    <!-- Les détails seront injectés ici par JavaScript -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="buy" class="buy">
+        <h2>Acheter une Tiny House</h2>
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <h3>Modèle Essential</h3>
+                <p class="price">À partir de 40 000€</p>
+                <ul>
+                    <li>20m² habitables</li>
+                    <li>Cuisine équipée</li>
+                    <li>Salle d'eau</li>
+                    <li>Chambre en mezzanine</li>
+                </ul>
+                <button class="modal-trigger" data-modal="customizeModal">Personnaliser</button>
+            </div>
+            <div class="pricing-card featured">
+                <h3>Modèle Premium</h3>
+                <p class="price">À partir de 75 000€</p>
+                <ul>
+                    <li>25m² habitables</li>
+                    <li>Cuisine premium</li>
+                    <li>Salle d'eau spacieuse</li>
+                    <li>Terrasse intégrée</li>
+                </ul>
+                <button class="modal-trigger" data-modal="customizeModal">Personnaliser</button>
+            </div>
+            <div class="pricing-card">
+                <h3>Modèle Luxe</h3>
+                <p class="price">À partir de 110 000€</p>
+                <ul>
+                    <li>30m² habitables</li>
+                    <li>Domotique intégrée</li>
+                    <li>Matériaux haut de gamme</li>
+                    <li>Sur-mesure complet</li>
+                </ul>
+                <button class="modal-trigger" data-modal="customizeModal">Personnaliser</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="contact">
+        <h2>Contact & FAQ</h2>
+        <div class="contact-container">
+            <div class="faq">
+                <h3>Questions Fréquentes</h3>
+                <div class="accordion">
+                    <div class="accordion-item">
+                        <h4>Quelles sont les réglementations pour installer une tiny house ?</h4>
+                        <div class="accordion-content">
+                            <p>Les tiny houses sont considérées comme des résidences mobiles. Leur installation est soumise à une déclaration préalable pour les séjours de plus de 3 mois.</p>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h4>Quelles sont les options de financement ?</h4>
+                        <div class="accordion-content">
+                            <p>Nous proposons plusieurs solutions : paiement comptant, crédit classique, ou location avec option d'achat. Nos conseillers vous accompagnent dans le choix de la meilleure option.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="contact-form">
+                <h3>Nous Contacter</h3>
+                <form id="contactForm">
+                    <input type="text" placeholder="Nom" required>
+                    <input type="email" placeholder="Email" required>
+                    <textarea placeholder="Votre message" required></textarea>
+                    <button type="submit">Envoyer</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modals -->
+    <div id="partnerModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Proposer mon terrain</h2>
+            <form id="partnerForm">
+                <input type="text" placeholder="Nom complet" required>
+                <input type="text" placeholder="Localisation du terrain" required>
+                <input type="number" placeholder="Surface disponible (m²)" required>
+                <textarea placeholder="Description du terrain" required></textarea>
+                <button type="submit">Envoyer ma proposition</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="bookingModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Réserver une tiny house</h2>
+            <form id="bookingForm">
+                <input type="date" placeholder="Date d'arrivée" required>
+                <input type="date" placeholder="Date de départ" required>
+                <select required>
+                    <option value="">Sélectionnez une tiny house</option>
+                    <option value="nature">Tiny House Nature</option>
+                    <option value="forest">Tiny House Forest</option>
+                    <option value="lake">Tiny House Lake</option>
+                    <option value="mountain">Tiny House Mountain</option>
+                </select>
+                <button type="submit">Vérifier les disponibilités</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="customizeModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Personnaliser votre tiny house</h2>
+            <form id="customizeForm">
+                <select required>
+                    <option value="">Choisir un modèle de base</option>
+                    <option value="essential">Essential - 40 000€</option>
+                    <option value="premium">Premium - 75 000€</option>
+                    <option value="luxe">Luxe - 110 000€</option>
+                </select>
+                <div class="options-grid">
+                    <label><input type="checkbox"> Terrasse (+5 000€)</label>
+                    <label><input type="checkbox"> Panneaux solaires (+8 000€)</label>
+                    <label><input type="checkbox"> Domotique (+3 000€)</label>
+                    <label><input type="checkbox"> Cuisine premium (+4 000€)</label>
+                </div>
+                <button type="submit">Obtenir un devis</button>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Tiny Corrèze</h3>
+                <p>Votre partenaire pour une vie plus minimaliste et écologique en Corrèze.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Contact</h3>
+                <p>Email: contact@tinycorreze.fr</p>
+                <p>Tél: 05 XX XX XX XX</p>
+            </div>
+            <div class="footer-section">
+                <h3>Suivez-nous</h3>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Tiny Corrèze. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Animation des statistiques
+        function animateStats() {
+            const stats = document.querySelectorAll('.stat-number');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const target = entry.target;
+                        const finalValue = target.getAttribute('data-value');
+                        let startValue = 0;
+                        const duration = 2000;
+                        const increment = finalValue / (duration / 16);
+                        
+                        const animate = () => {
+                            startValue += increment;
+                            if (startValue <= finalValue) {
+                                if (target.classList.contains('percentage')) {
+                                    target.textContent = Math.floor(startValue) + '%';
+                                } else {
+                                    target.textContent = Math.floor(startValue);
+                                }
+                                requestAnimationFrame(animate);
+                            } else {
+                                if (target.classList.contains('percentage')) {
+                                    target.textContent = finalValue + '%';
+                                } else {
+                                    target.textContent = finalValue;
+                                }
+                            }
+                        };
+                        
+                        animate();
+                        observer.unobserve(target);
+                    }
+                });
+            }, { threshold: 0.5 });
+
+            stats.forEach(stat => observer.observe(stat));
+        }
+
+        // Lancer l'animation au chargement
+        document.addEventListener('DOMContentLoaded', animateStats);
+    </script>
+
+    <script src="script.js"></script>
+    <script src="partner-dashboard.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Animation des compteurs et de la timeline
+        document.addEventListener('DOMContentLoaded', () => {
+            // Animation des compteurs
+            function animateCounters() {
+                const counters = document.querySelectorAll('.counter');
+                counters.forEach(counter => {
+                    const target = counter.getAttribute('data-target');
+                    counter.textContent = target;
+                });
+            }
+
+            // Animation de la timeline
+            function animateTimeline() {
+                const timelineItems = document.querySelectorAll('.timeline-item');
+                
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                        }
+                    });
+                }, { threshold: 0.5 });
+
+                timelineItems.forEach(item => {
+                    observer.observe(item);
+                });
+            }
+
+            // Initialiser la timeline
+            animateTimeline();
+            
+            // Mettre à jour les compteurs directement
+            animateCounters();
+        });
+    </script>
+
+    <script>
+        // Initialisation de la carte
+        document.addEventListener('DOMContentLoaded', () => {
+            const map = L.map('partner-map').setView([45.2671, 1.7705], 9);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Emplacements disponibles (vert)
+            const availableLocations = [
+                { lat: 45.2671, lng: 1.7705, name: "Tulle" },
+                { lat: 45.3437, lng: 1.8732, name: "Égletons" },
+                { lat: 45.1589, lng: 1.5322, name: "Brive-la-Gaillarde" }
+            ];
+
+            // Tiny Houses installées (bleu)
+            const occupiedLocations = [
+                { lat: 45.4397, lng: 1.7757, name: "Lac de Vassivière" },
+                { lat: 45.2947, lng: 1.9026, name: "Meymac" }
+            ];
+
+            const greenIcon = L.divIcon({
+                className: 'custom-marker available',
+                html: '<i class="fas fa-map-marker-alt"></i>',
+                iconSize: [30, 30],
+                iconAnchor: [15, 30]
+            });
+
+            const blueIcon = L.divIcon({
+                className: 'custom-marker occupied',
+                html: '<i class="fas fa-map-marker-alt"></i>',
+                iconSize: [30, 30],
+                iconAnchor: [15, 30]
+            });
+
+            availableLocations.forEach(loc => {
+                L.marker([loc.lat, loc.lng], { icon: greenIcon })
+                    .bindPopup(`<b>${loc.name}</b><br>Emplacement disponible`)
+                    .addTo(map);
+            });
+
+            occupiedLocations.forEach(loc => {
+                L.marker([loc.lat, loc.lng], { icon: blueIcon })
+                    .bindPopup(`<b>${loc.name}</b><br>Tiny House installée`)
+                    .addTo(map);
+            });
+        });
+    </script>
+</body>
+</html>
